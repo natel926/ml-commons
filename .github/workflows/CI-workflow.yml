@@ -139,7 +139,7 @@ jobs:
                                ./gradlew :opensearch-ml-plugin:jacocoIntegTestReport "-Pcrypto.standard=FIPS-140-3" -x spotlessJava'
 
       - name: Upload IntegTest Coverage Report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v3
         with:
           flags: ml-commons-integtest
           files: plugin/build/reports/jacoco/integTest/jacocoIntegTestReport.xml
