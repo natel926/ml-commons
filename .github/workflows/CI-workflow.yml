@@ -105,7 +105,7 @@ jobs:
 
 
   IntegTest-Coverage-linux:
-    needs: [Get-Require-Approval, Get-CI-Image-Tag, spotless]
+    needs: [Get-CI-Image-Tag]
     strategy:
       matrix:
         java: [21]
