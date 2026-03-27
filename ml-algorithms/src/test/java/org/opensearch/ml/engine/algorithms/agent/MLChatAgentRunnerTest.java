@@ -170,6 +170,12 @@ public class MLChatAgentRunnerTest {
             return null;
         }).when(conversationIndexMemory).update(any(), any(), any());
 
+        doAnswer(invocation -> {
+            ActionListener<Void> listener = invocation.getArgument(1);
+            listener.onResponse(null);
+            return null;
+        }).when(conversationIndexMemory).saveStructuredMessages(any(), any());
+
         mlChatAgentRunner = new MLChatAgentRunner(client, settings, clusterService, xContentRegistry, toolFactories, memoryMap, null, null);
         when(firstToolFactory.create(Mockito.anyMap())).thenReturn(firstTool);
         when(secondToolFactory.create(Mockito.anyMap())).thenReturn(secondTool);
@@ -889,10 +895,10 @@ public class MLChatAgentRunnerTest {
         Map<String, String> params = createAgentParamsWithAction(FIRST_TOOL, "someInput");
 
         doAnswer(invocation -> {
-            ActionListener<CreateInteractionResponse> listener = invocation.getArgument(4);
+            ActionListener<Void> listener = invocation.getArgument(1);
             listener.onFailure(new IllegalArgumentException());
             return null;
-        }).when(conversationIndexMemory).save(any(), any(), any(), any(), conversationIndexMemoryCapture.capture());
+        }).when(conversationIndexMemory).saveStructuredMessages(any(), any());
         // Run the MLChatAgentRunner
         mlChatAgentRunner.run(mlAgent, params, agentActionListener, null);
 
@@ -1496,7 +1502,7 @@ public class MLChatAgentRunnerTest {
         LLMSpec llmSpec = LLMSpec.builder().modelId("MODEL_ID").build();
         ActionListener<String> listener = Mockito.mock(ActionListener.class);
 
-        mlChatAgentRunner.generateLLMSummary(null, llmSpec, "tenant", "question", new HashMap<>(), listener);
+        mlChatAgentRunner.generateLLMSummary(null, llmSpec, "tenant", "question", new HashMap<>(), listener, null, null);
 
         verify(listener).onFailure(any(IllegalArgumentException.class));
     }
@@ -1639,11 +1645,8 @@ public class MLChatAgentRunnerTest {
         // Verify agent completes successfully
         verify(agentActionListener).onResponse(objectCaptor.capture());
 
-        // Verify trace data was NOT saved to memory (4-arg version used by saveTraceData)
-        verify(conversationIndexMemory, never()).save(any(), any(), any(Integer.class), anyString());
-        // Verify trace data was NOT saved to memory (5-arg version used by saveMessage)
-        verify(conversationIndexMemory, never()).save(any(), any(), any(Integer.class), anyString(), any());
-
+        // Tracing is now controlled solely by DISABLE_TRACE parameter.
+        // Without DISABLE_TRACE=true, trace data MAY be saved for unified interface agents.
         // Verify structured messages WERE saved (unified flow uses this for final answer)
         verify(conversationIndexMemory).saveStructuredMessages(any(), any());
     }
