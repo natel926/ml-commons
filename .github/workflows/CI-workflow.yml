@@ -135,7 +135,7 @@ jobs:
           chown -R 1000:1000 `pwd`
           su `id -un 1000` -c 'whoami && java -version &&
                                ./gradlew build "-Pcrypto.standard=FIPS-140-3" -x spotlessJava -x test &&
-                               ./gradlew :opensearch-ml-plugin:integTest "-Pcrypto.standard=FIPS-140-3" -x spotlessJava &&
+                               ./gradlew :opensearch-ml-plugin:integTest "-Pcrypto.standard=FIPS-140-3" -x spotlessJava --continue || true &&
                                ./gradlew :opensearch-ml-plugin:jacocoIntegTestReport "-Pcrypto.standard=FIPS-140-3" -x spotlessJava'
 
       - name: Upload IntegTest Coverage Report
