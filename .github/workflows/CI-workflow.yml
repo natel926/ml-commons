@@ -111,7 +111,7 @@ jobs:
         java: [21]
 
     name: IntegTest Coverage on linux (single-node)
-    if: github.repository == 'opensearch-project/ml-commons'
+    if: github.repository == 'natel926/ml-commons' || github.repository == 'opensearch-project/ml-commons'
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-version-linux }}
